@@ -739,3 +739,79 @@ export const butterflyEffects: ButterflyEffect[] = [
     sources: ["Innovation economics", "Labor economics"]
   }
 ];
+
+export type IdeologicalBattle = {
+  id: string;
+  label: string;
+  left: string;
+  right: string;
+  era: string;
+  question: string;
+  stakes: string;
+  historicalVerdict: string;
+  modernResonance: string;
+  leftWon: boolean;
+};
+
+export const ideologicalBattles: IdeologicalBattle[] = [
+  {
+    id: "keynes-hayek",
+    label: "Keynes vs Hayek",
+    left: "John Maynard Keynes",
+    right: "F. A. Hayek",
+    era: "1930s – 1970s",
+    question: "Can governments stabilize economies safely?",
+    stakes: "The Great Depression forced a choice: wait for markets to self-correct, or spend your way out. The answer shaped every recession response for a century.",
+    historicalVerdict: "Keynes dominated the postwar era. Hayek's influence surged in the 1970s when inflation undermined Keynesian confidence. Both schools have shaped modern policy — neither has won permanently.",
+    modernResonance: "Every recession triggers this debate: should governments spend aggressively, or trust markets to clear? 2008, COVID, and every rate-hike cycle are versions of this argument.",
+    leftWon: true
+  },
+  {
+    id: "smith-marx",
+    label: "Smith vs Marx",
+    left: "Adam Smith",
+    right: "Karl Marx",
+    era: "1776 – 1883",
+    question: "Do markets create freedom, or hide power?",
+    stakes: "The Industrial Revolution created enormous wealth and enormous suffering. Smith saw coordination. Marx saw exploitation. The disagreement defined two centuries of political economy.",
+    historicalVerdict: "Smith's framework became the foundation of capitalist institutions. Marx's critique inspired labor movements, welfare states, and communist revolutions. Both left permanent marks.",
+    modernResonance: "Platform monopolies, inequality, and labor rights debates still replay this conflict. Who gains from markets, and who should govern them?",
+    leftWon: false
+  },
+  {
+    id: "friedman-keynes",
+    label: "Friedman vs Keynes",
+    left: "Milton Friedman",
+    right: "John Maynard Keynes",
+    era: "1950s – 1980s",
+    question: "What anchors economic trust — money or spending?",
+    stakes: "1970s stagflation revealed that demand management could cause inflation. Friedman argued credibility and money supply came first. Keynes had argued spending saved economies from collapse.",
+    historicalVerdict: "Friedman won the inflation debate. Central banks adopted inflation targeting. But the 2008 crisis partially rehabilitated fiscal stimulus — neither school has won permanently.",
+    modernResonance: "Every central bank decision — raise rates or hold — is Friedman vs Keynes. Post-COVID inflation renewed this argument with urgency.",
+    leftWon: true
+  },
+  {
+    id: "schumpeter-marx",
+    label: "Schumpeter vs Marx",
+    left: "Joseph Schumpeter",
+    right: "Karl Marx",
+    era: "1900s – 1950s",
+    question: "Is capitalism's disruption the engine of progress, or exploitation?",
+    stakes: "Both saw capitalism as dynamic and unstable. Schumpeter saw entrepreneurs as heroes. Marx saw owners as exploiters. Their disagreement defines how we frame innovation and inequality.",
+    historicalVerdict: "Neither fully won. Tech optimists echo Schumpeter. Labor advocates echo Marx. AI and platform economics revived both frames simultaneously.",
+    modernResonance: "AI, automation, and gig work force the question: who captures the gains from disruption, and who absorbs the costs?",
+    leftWon: false
+  },
+  {
+    id: "malthus-schumpeter",
+    label: "Malthus vs Schumpeter",
+    left: "Thomas Malthus",
+    right: "Joseph Schumpeter",
+    era: "1800s – 1900s",
+    question: "Can innovation outrun resource limits forever?",
+    stakes: "Malthus warned that population would outgrow food. Schumpeter believed invention would keep breaking limits. Their disagreement is a bet on human ingenuity against natural constraints.",
+    historicalVerdict: "Schumpeter appeared right for 200 years — the Green Revolution and industrial technology defeated Malthusian limits repeatedly. Climate change has partially revived Malthusian fears.",
+    modernResonance: "Climate, water, energy, and food security are Malthusian questions. Whether technology will solve them is the Schumpeterian answer.",
+    leftWon: false
+  }
+];

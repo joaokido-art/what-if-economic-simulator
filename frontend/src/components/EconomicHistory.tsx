@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   BookOpen,
@@ -13,11 +13,14 @@ import {
   Landmark,
   LineChart,
   Network,
+  Pause,
+  Play,
   ScrollText,
   Sparkles,
+  Swords,
   Users
 } from "lucide-react";
-import { butterflyEffects, eraCards, thinkers, timelineEvents, type EconomicEra, type Metric, type TimelineEvent } from "../data/economicHistory";
+import { butterflyEffects, eraCards, ideologicalBattles, thinkers, timelineEvents, type EconomicEra, type IdeologicalBattle, type Metric, type TimelineEvent } from "../data/economicHistory";
 import type { EconomicVariables } from "../types/economy";
 
 type EconomicHistoryProps = {
@@ -1462,14 +1465,18 @@ function ThinkersPolicyPlaybooks({
   setActiveThinker: (name: string) => void;
   thinker: (typeof thinkers)[number];
 }) {
+  const [tab, setTab] = useState<"explore" | "battle">("explore");
+  const [activeBattleId, setActiveBattleId] = useState(ideologicalBattles[0].id);
+  const activeBattle = ideologicalBattles.find((b) => b.id === activeBattleId) ?? ideologicalBattles[0];
+
   const scenarioRead =
     variables.inflation > 6
-      ? "your current sandbox has inflation pressure"
+      ? "sandbox: inflation pressure"
       : variables.unemployment > 8
-        ? "your current sandbox has labor-market stress"
+        ? "sandbox: labor-market stress"
         : variables.tariffs > 18
-          ? "your current sandbox has trade friction"
-          : "your current sandbox is relatively balanced";
+          ? "sandbox: trade friction"
+          : "sandbox: relatively balanced";
   const profile = thinkerWarProfiles[thinker.name] ?? thinkerWarProfiles["John Maynard Keynes"];
   const opposition = oppositionBriefs[thinker.name] ?? oppositionBriefs["John Maynard Keynes"];
   const solution = profile.actions.slice(0, 2).join(" + ");
@@ -1493,94 +1500,245 @@ function ThinkersPolicyPlaybooks({
         </p>
       </div>
 
-      <div className="relative mt-5 grid items-start gap-5 xl:grid-cols-[270px_1fr]">
-        <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1 xl:sticky xl:top-24 xl:max-h-[calc(100vh-120px)]">
-          {thinkers.map((item) => (
-            <button
-              key={item.name}
-              onClick={() => setActiveThinker(item.name)}
-              className={`w-full rounded-[8px] border px-4 py-3 text-left transition ${
-                activeThinker === item.name ? "border-cyan/45 bg-cyan/10" : "border-white/10 bg-white/[0.025] hover:border-white/25"
-              }`}
-            >
-              <div className="text-sm font-semibold text-white">{item.name}</div>
-              <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">{item.dates}</div>
-              <div className="mt-3 font-mono text-[9px] uppercase leading-4 tracking-[0.16em] text-cyan">
-                {thinkerWarProfiles[item.name]?.ideology ?? item.school}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <article className="rounded-[8px] border border-white/10 bg-black/20 p-6">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-            <div>
-              <h3 className="mt-1 text-3xl font-bold text-white">{thinker.name}</h3>
-              <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-cyan">{thinker.dates} · {profile.movement}</p>
-              <p className="mt-5 max-w-4xl text-2xl leading-9 text-slate-100">{profile.philosophy}</p>
-            </div>
-            <span className="rounded-full border border-amber/20 bg-amber/10 px-3 py-1 text-xs text-amber">{scenarioRead}</span>
-          </div>
-
-          <div className="mt-6 grid gap-3 border-y border-white/10 py-4 md:grid-cols-5">
-            <MetaItem label="Crisis" value={thinker.respondingTo} />
-            <MetaItem label="Fear" value={profile.fear} />
-            <MetaItem label="Solution" value={solution} />
-            <MetaItem label="Opponent" value={opposition.opponent} />
-            <MetaItem label="Today" value={currentDebate} />
-          </div>
-
-          <div className="mt-6">
-            <h4 className="text-lg font-semibold text-white">What would they do?</h4>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {profile.actions.map((action) => (
-                <span key={action} className="rounded-full bg-white/[0.07] px-3 py-2 text-xs font-semibold text-slate-100">{action}</span>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-7 rounded-[8px] bg-white/[0.035] p-5">
-            <div className="text-sm font-semibold text-amber">Key question: {opposition.question}</div>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div>
-                <div className="text-sm font-semibold text-white">{thinker.name.split(" ").slice(-1)[0]}</div>
-                <p className="mt-2 text-sm leading-6 text-slate-300">{opposition.thinkerView}</p>
-              </div>
-              <div className="border-l border-white/10 pl-4 md:border-l">
-                <div className="text-sm font-semibold text-cyan">{opposition.opponent}</div>
-                <p className="mt-2 text-sm leading-6 text-slate-300">{opposition.opponentView}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <h4 className="text-lg font-semibold text-white">Where this appears today</h4>
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
-              {modernEntries.map(([debate, reaction]) => (
-                <div key={debate} className="border-l border-cyan/20 pl-4">
-                  <div className="text-sm font-semibold text-cyan">{debate}</div>
-                  <p className="mt-1 text-sm leading-6 text-slate-300">{reaction}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-6 divide-y divide-white/10 border-y border-white/10">
-            <CollapsibleBrief title="Why people followed them">{profile.whyFollowed}</CollapsibleBrief>
-            <CollapsibleBrief title="Main criticism">{thinker.criticism}</CollapsibleBrief>
-            <CollapsibleBrief title="If they saw today's world">{profile.today}</CollapsibleBrief>
-            <CollapsibleBrief title="Famous historical example">{thinker.modernExample}</CollapsibleBrief>
-            <CollapsibleBrief title="More debates with opponents">
-              {profile.conflicts.map((conflict) => `${thinker.name.split(" ").slice(-1)[0]} vs ${conflict.with}: ${conflict.axis}`).join(" ")}
-            </CollapsibleBrief>
-          </div>
-
-          <div className="mt-5">
-            <Sources items={thinker.sources} />
-          </div>
-        </article>
+      <div className="relative mt-4 flex gap-2">
+        <button
+          onClick={() => setTab("explore")}
+          className={`inline-flex items-center gap-2 rounded-[8px] border px-3 py-2 text-sm font-semibold transition ${tab === "explore" ? "border-cyan/40 bg-cyan/10 text-cyan" : "border-white/10 bg-white/[0.04] text-white hover:border-white/25"}`}
+        >
+          <Brain className="h-4 w-4" />
+          Explore Thinkers
+        </button>
+        <button
+          onClick={() => setTab("battle")}
+          className={`inline-flex items-center gap-2 rounded-[8px] border px-3 py-2 text-sm font-semibold transition ${tab === "battle" ? "border-rose/40 bg-rose/10 text-rose" : "border-white/10 bg-white/[0.04] text-white hover:border-rose/30"}`}
+        >
+          <Swords className="h-4 w-4" />
+          Battle of Ideas
+        </button>
       </div>
+
+      <AnimatePresence mode="wait">
+        {tab === "battle" ? (
+          <motion.div key="battle" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="mt-5">
+            <BattleArena activeBattle={activeBattle} activeBattleId={activeBattleId} setActiveBattleId={setActiveBattleId} />
+          </motion.div>
+        ) : (
+          <motion.div key="explore" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="relative mt-5 grid items-start gap-5 xl:grid-cols-[270px_1fr]">
+            <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1 xl:sticky xl:top-24 xl:max-h-[calc(100vh-120px)]">
+              {thinkers.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => setActiveThinker(item.name)}
+                  className={`w-full rounded-[8px] border px-4 py-3 text-left transition ${
+                    activeThinker === item.name ? "border-cyan/45 bg-cyan/10" : "border-white/10 bg-white/[0.025] hover:border-white/25"
+                  }`}
+                >
+                  <div className="text-sm font-semibold text-white">{item.name}</div>
+                  <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">{item.dates}</div>
+                  <div className="mt-3 font-mono text-[9px] uppercase leading-4 tracking-[0.16em] text-cyan">
+                    {thinkerWarProfiles[item.name]?.ideology ?? item.school}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <article className="rounded-[8px] border border-white/10 bg-black/20 p-6">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div>
+                  <h3 className="mt-1 text-3xl font-bold text-white">{thinker.name}</h3>
+                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-cyan">{thinker.dates} · {profile.movement}</p>
+                  <p className="mt-5 max-w-4xl text-2xl leading-9 text-slate-100">{profile.philosophy}</p>
+                </div>
+                <span className="shrink-0 rounded-full border border-amber/20 bg-amber/10 px-3 py-1 text-xs text-amber">{scenarioRead}</span>
+              </div>
+
+              <div className="mt-6 grid gap-3 border-y border-white/10 py-4 md:grid-cols-5">
+                <MetaItem label="Crisis" value={thinker.respondingTo} />
+                <MetaItem label="Fear" value={profile.fear} />
+                <MetaItem label="Solution" value={solution} />
+                <MetaItem label="Opponent" value={opposition.opponent} />
+                <MetaItem label="Today" value={currentDebate} />
+              </div>
+
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold text-white">What would they do?</h4>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {profile.actions.map((action) => (
+                    <span key={action} className="rounded-full bg-white/[0.07] px-3 py-2 text-xs font-semibold text-slate-100">{action}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-7 rounded-[8px] bg-white/[0.035] p-5">
+                <div className="text-sm font-semibold text-amber">Key question: {opposition.question}</div>
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <div>
+                    <div className="text-sm font-semibold text-white">{thinker.name.split(" ").slice(-1)[0]}</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{opposition.thinkerView}</p>
+                  </div>
+                  <div className="border-l border-white/10 pl-4">
+                    <div className="text-sm font-semibold text-cyan">{opposition.opponent}</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{opposition.opponentView}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold text-white">Where this appears today</h4>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  {modernEntries.map(([debate, reaction]) => (
+                    <div key={debate} className="border-l border-cyan/20 pl-4">
+                      <div className="text-sm font-semibold text-cyan">{debate}</div>
+                      <p className="mt-1 text-sm leading-6 text-slate-300">{reaction}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 divide-y divide-white/10 border-y border-white/10">
+                <CollapsibleBrief title="Why people followed them">{profile.whyFollowed}</CollapsibleBrief>
+                <CollapsibleBrief title="Main criticism">{thinker.criticism}</CollapsibleBrief>
+                <CollapsibleBrief title="If they saw today's world">{profile.today}</CollapsibleBrief>
+                <CollapsibleBrief title="Famous historical example">{thinker.modernExample}</CollapsibleBrief>
+                <CollapsibleBrief title="More debates with opponents">
+                  {profile.conflicts.map((conflict) => `${thinker.name.split(" ").slice(-1)[0]} vs ${conflict.with}: ${conflict.axis}`).join(" ")}
+                </CollapsibleBrief>
+              </div>
+
+              <div className="mt-5">
+                <Sources items={thinker.sources} />
+              </div>
+            </article>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
+  );
+}
+
+function BattleArena({
+  activeBattle,
+  activeBattleId,
+  setActiveBattleId
+}: {
+  activeBattle: IdeologicalBattle;
+  activeBattleId: string;
+  setActiveBattleId: (id: string) => void;
+}) {
+  const leftProfile = thinkerWarProfiles[activeBattle.left];
+  const rightProfile = thinkerWarProfiles[activeBattle.right];
+  const leftOpposition = oppositionBriefs[activeBattle.left];
+  const rightOpposition = oppositionBriefs[activeBattle.right];
+  const leftThinker = thinkers.find((t) => t.name === activeBattle.left);
+  const rightThinker = thinkers.find((t) => t.name === activeBattle.right);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {ideologicalBattles.map((battle) => (
+          <button
+            key={battle.id}
+            onClick={() => setActiveBattleId(battle.id)}
+            className={`rounded-[8px] border px-3 py-2 text-sm font-semibold transition ${
+              activeBattleId === battle.id
+                ? "border-rose/40 bg-rose/10 text-rose"
+                : "border-white/10 bg-white/[0.04] text-white hover:border-white/25"
+            }`}
+          >
+            {battle.label}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeBattleId}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.22 }}
+          className="space-y-4"
+        >
+          <div className="relative overflow-hidden rounded-[8px] border border-white/10 bg-black/20">
+            <div className="absolute inset-0 [background:radial-gradient(circle_at_20%_50%,rgba(56,213,255,.07),transparent_38%),radial-gradient(circle_at_80%_50%,rgba(251,113,133,.07),transparent_38%)]" />
+            <div className="relative grid md:grid-cols-[1fr_auto_1fr]">
+              <div className="flex flex-col gap-4 p-6">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-cyan/10 text-xl">{leftProfile?.symbol}</span>
+                  <div>
+                    <div className="font-semibold text-white">{activeBattle.left}</div>
+                    <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-cyan">{leftProfile?.movement}</div>
+                  </div>
+                </div>
+                <p className="text-sm leading-6 text-slate-300">{leftOpposition?.thinkerView}</p>
+                <div className="space-y-2">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">Policy playbook</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {leftProfile?.actions.map((a) => (
+                      <span key={a} className="rounded-full border border-cyan/20 bg-cyan/10 px-2.5 py-1 text-xs text-cyan">{a}</span>
+                    ))}
+                  </div>
+                </div>
+                {leftThinker && (
+                  <div className="rounded-[8px] border border-white/10 bg-white/[0.03] p-3 text-xs leading-5 text-slate-400">
+                    <span className="font-semibold text-white">Main criticism: </span>{leftThinker.criticism}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-3 px-4 py-6">
+                <div className="hidden h-full w-px bg-gradient-to-b from-transparent via-white/15 to-transparent md:block" />
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-rose/30 bg-rose/10">
+                  <Swords className="h-5 w-5 text-rose" />
+                </div>
+                <div className="hidden h-full w-px bg-gradient-to-b from-transparent via-white/15 to-transparent md:block" />
+              </div>
+
+              <div className="flex flex-col gap-4 border-t border-white/10 p-6 md:border-l md:border-t-0">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-rose/10 text-xl">{rightProfile?.symbol}</span>
+                  <div>
+                    <div className="font-semibold text-white">{activeBattle.right}</div>
+                    <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-rose">{rightProfile?.movement}</div>
+                  </div>
+                </div>
+                <p className="text-sm leading-6 text-slate-300">{leftOpposition?.opponentView}</p>
+                <div className="space-y-2">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">Policy playbook</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {rightProfile?.actions.map((a) => (
+                      <span key={a} className="rounded-full border border-rose/20 bg-rose/10 px-2.5 py-1 text-xs text-rose">{a}</span>
+                    ))}
+                  </div>
+                </div>
+                {rightThinker && (
+                  <div className="rounded-[8px] border border-white/10 bg-white/[0.03] p-3 text-xs leading-5 text-slate-400">
+                    <span className="font-semibold text-white">Main criticism: </span>{rightThinker.criticism}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="relative border-t border-white/10 bg-white/[0.025] px-6 py-4">
+              <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.22em] text-amber">The question</div>
+              <p className="text-base font-semibold text-white">{activeBattle.question}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">{activeBattle.stakes}</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-[8px] border border-mint/20 bg-mint/5 p-5">
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.22em] text-mint">Historical verdict</div>
+              <p className="text-sm leading-6 text-slate-300">{activeBattle.historicalVerdict}</p>
+            </div>
+            <div className="rounded-[8px] border border-amber/20 bg-amber/5 p-5">
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.22em] text-amber">Modern resonance</div>
+              <p className="text-sm leading-6 text-slate-300">{activeBattle.modernResonance}</p>
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -1616,13 +1774,16 @@ function ButterflyEffect({
 }) {
   return (
     <section className="glass rounded-[8px] p-5">
-      <SectionTitle icon={Flame} eyebrow="Section 6" title="Economic Butterfly Effect" />
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <SectionTitle icon={Flame} eyebrow="Section 6" title="Economic Butterfly Effect" />
+        <p className="max-w-xl text-sm leading-6 text-slate-400">Select a shock and play through the causal chain to see how one event reshapes an entire economy.</p>
+      </div>
       <div className="mt-5 flex flex-wrap gap-2">
         {butterflyEffects.map((item) => (
           <button
             key={item.trigger}
             onClick={() => setActive(item.trigger)}
-            className={`rounded-[8px] border px-3 py-2 text-sm font-semibold ${
+            className={`rounded-[8px] border px-3 py-2 text-sm font-semibold transition ${
               active === item.trigger ? "border-amber/40 bg-amber/10 text-amber" : "border-white/10 bg-white/[0.04] text-white hover:border-white/25"
             }`}
           >
@@ -1630,27 +1791,38 @@ function ButterflyEffect({
           </button>
         ))}
       </div>
-      <div className="mt-5 rounded-[8px] border border-white/10 bg-black/20 p-5">
-        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber">Initial shock</div>
-        <h3 className="mt-1 text-2xl font-bold text-white">{effect.initialShock}</h3>
-        <div className="mt-5">
-          <CausalChain items={effect.chain} />
-        </div>
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
-          <Mini title="Affected groups" body={effect.affectedGroups} />
-          <Mini title="Political/social spillovers" body={effect.spillovers} />
-          <Mini title="Final historical lesson" body={effect.lesson} />
-        </div>
-        <div className="mt-5 rounded-[8px] border border-cyan/15 bg-cyan/10 p-4">
-          <div className="mb-2 text-sm font-semibold text-white">Indicators affected</div>
-          <div className="flex flex-wrap gap-2">
-            {effect.indicators.map((indicator) => (
-              <span key={indicator} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-slate-200">{indicator}</span>
-            ))}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+          className="mt-5 rounded-[8px] border border-white/10 bg-black/20 p-5"
+        >
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber">Initial shock</div>
+              <h3 className="mt-1 text-2xl font-bold text-white">{effect.initialShock}</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {effect.indicators.map((indicator) => (
+                <span key={indicator} className="rounded-full border border-amber/20 bg-amber/10 px-3 py-1 text-xs text-amber">{indicator}</span>
+              ))}
+            </div>
           </div>
-        </div>
-        <Sources items={effect.sources} />
-      </div>
+          <div className="mt-5">
+            <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">Propagation chain</div>
+            <CausalChain items={effect.chain} />
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <Mini title="Who is affected" body={effect.affectedGroups} />
+            <Mini title="Political and social spillovers" body={effect.spillovers} />
+            <Mini title="Historical lesson" body={effect.lesson} />
+          </div>
+          <Sources items={effect.sources} />
+        </motion.div>
+      </AnimatePresence>
     </section>
   );
 }
@@ -1698,14 +1870,66 @@ function MiniFlow({ label, value }: { label: string; value: string }) {
 }
 
 function CausalChain({ items }: { items: string[] }) {
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const visible = step === items.length - 1 ? items.length : step + 1;
+
+  useEffect(() => {
+    setStep(0);
+    setPlaying(false);
+  }, [items]);
+
+  useEffect(() => {
+    if (!playing) { if (timerRef.current) clearInterval(timerRef.current); return; }
+    timerRef.current = setInterval(() => {
+      setStep((s) => {
+        if (s >= items.length - 1) { setPlaying(false); return s; }
+        return s + 1;
+      });
+    }, 700);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [playing, items.length]);
+
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {items.map((item, index) => (
-        <span key={`${item}-${index}`} className="inline-flex items-center gap-2">
-          <motion.span layout className="rounded-[8px] border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-slate-200">{item}</motion.span>
-          {index < items.length - 1 && <ChevronRight className="h-4 w-4 animate-pulse text-amber" />}
-        </span>
-      ))}
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => { if (step >= items.length - 1) { setStep(0); setTimeout(() => setPlaying(true), 40); } else setPlaying(!playing); }}
+          className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs font-semibold text-white hover:border-amber/40"
+        >
+          {playing ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+          {step >= items.length - 1 ? "Replay" : playing ? "Pause" : "Play chain"}
+        </button>
+        <span className="font-mono text-[10px] text-slate-500">{Math.min(visible, items.length)} / {items.length}</span>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {items.map((item, index) => (
+          <span key={`${item}-${index}`} className="inline-flex items-center gap-2">
+            <motion.button
+              layout
+              onClick={() => { setStep(index); setPlaying(false); }}
+              animate={{ opacity: index <= step ? 1 : 0.2 }}
+              transition={{ duration: 0.35 }}
+              className={`rounded-[8px] border px-3 py-2 text-xs transition ${
+                index === step
+                  ? "border-amber/50 bg-amber/10 text-amber shadow-[0_0_12px_rgba(245,196,81,.18)]"
+                  : index < step
+                    ? "border-white/15 bg-white/[0.05] text-slate-200"
+                    : "border-white/[0.06] bg-white/[0.02] text-slate-500"
+              }`}
+            >
+              {item}
+            </motion.button>
+            {index < items.length - 1 && (
+              <motion.span animate={{ opacity: index < step ? 1 : 0.2 }} transition={{ duration: 0.35 }}>
+                <ChevronRight className={`h-4 w-4 ${index < step ? "text-amber" : "text-slate-600"}`} />
+              </motion.span>
+            )}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
