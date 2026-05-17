@@ -1,0 +1,119 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  background: #05070d;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  --accent: 56 213 255;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #05070d;
+  color: #eef6ff;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+input[type="range"] {
+  width: 100%;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(56, 213, 255, 0.95), rgba(110, 231, 183, 0.8));
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f8fbff;
+  border: 3px solid rgb(56, 213, 255);
+  box-shadow: 0 0 24px rgba(56, 213, 255, 0.45);
+  cursor: grab;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f8fbff;
+  border: 3px solid rgb(56, 213, 255);
+  box-shadow: 0 0 24px rgba(56, 213, 255, 0.45);
+  cursor: grab;
+}
+
+.glass {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.78), rgba(8, 13, 24, 0.72));
+  backdrop-filter: blur(22px);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.28);
+}
+
+.thin-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  animation: ticker 34s linear infinite;
+}
+
+@keyframes routePulse {
+  0% {
+    opacity: 0.2;
+    transform: translateX(-8px) scaleX(0.9);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateX(8px) scaleX(1.04);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translateX(-8px) scaleX(0.9);
+  }
+}
+
+.trade-route {
+  animation: routePulse 4s ease-in-out infinite;
+}
+
+.trade-route-slow {
+  animation: routePulse 6s ease-in-out infinite;
+}

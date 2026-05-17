@@ -1,0 +1,16 @@
+{
+  "name": "what-if-economic-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview",
+    "lint": "npm --prefix frontend run lint",
+    "api": "uvicorn backend.app.main:app --reload --port 8000",
+    "seed": "python3 backend/seed.py"
+  },
+  "workspaces": [
+    "frontend"
+  ]
+}
