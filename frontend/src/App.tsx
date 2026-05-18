@@ -115,7 +115,7 @@ function App() {
         {mode === "landing" ? (
           <motion.div key="landing" exit={{ opacity: 0, y: -12 }}>
             <Nav onLanding={() => setMode("landing")} onSandbox={() => setMode("sandbox")} onHistory={() => setMode("history")} onEconomics={() => setMode("economics")} mode={mode} />
-            <LandingPage previewData={preview} onEnter={() => setMode("sandbox")} />
+            <LandingPage previewData={preview} onEnter={() => setMode("sandbox")} onHistory={() => setMode("history")} onEconomics={() => setMode("economics")} />
             <Footer />
           </motion.div>
         ) : mode === "history" ? (
