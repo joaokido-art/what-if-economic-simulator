@@ -144,107 +144,169 @@ const causeChains = [
   { title: "Inflation Surge", accent: "rose" as const, steps: ["Prices accelerate", "Real wages fall", "Purchasing power drops", "Political anger rises", "Institutions lose trust", "Instability grows"] },
 ];
 
-// ─── MacroPulse: Animated Economic Node Network ────────────────────────────
+// ─── EconomicGlobe: Living World Simulation ───────────────────────────────────
 
-const NODES = [
-  { id: "tech", label: "Technology", x: 220, y: 52, r: 22, color: "#a78bfa", dur: 3.2, glyph: "⚡" },
-  { id: "trade", label: "Trade", x: 62, y: 148, r: 20, color: "#38d5ff", dur: 2.6, glyph: "↔" },
-  { id: "state", label: "State", x: 378, y: 148, r: 20, color: "#38d5ff", dur: 2.9, glyph: "▲" },
-  { id: "credit", label: "Credit", x: 220, y: 200, r: 26, color: "#f5c451", dur: 1.8, glyph: "◆" },
-  { id: "labor", label: "Labor", x: 62, y: 280, r: 18, color: "#6ee7b7", dur: 2.3, glyph: "⚒" },
-  { id: "money", label: "Money", x: 378, y: 280, r: 18, color: "#6ee7b7", dur: 2.1, glyph: "₿" },
-  { id: "crisis", label: "Crisis", x: 220, y: 352, r: 20, color: "#fb7185", dur: 1.4, glyph: "!" },
+const CITIES = [
+  { id: "nyc", x: 183, y: 150, color: "#38d5ff", dur: 2.4 },
+  { id: "lon", x: 271, y: 118, color: "#6ee7b7", dur: 3.1 },
+  { id: "dxb", x: 332, y: 176, color: "#f5c451", dur: 2.7 },
+  { id: "sha", x: 397, y: 158, color: "#a78bfa", dur: 2.2 },
+  { id: "sin", x: 385, y: 228, color: "#a78bfa", dur: 2.9 },
+  { id: "lag", x: 272, y: 238, color: "#6ee7b7", dur: 3.6 },
+  { id: "sao", x: 218, y: 282, color: "#fb7185", dur: 2.6 },
+  { id: "mum", x: 350, y: 192, color: "#f5c451", dur: 3.3 },
 ] as const;
 
-const EDGES: Array<[string, string, string, number]> = [
-  ["220,52", "62,148", "#a78bfa", 2.8],
-  ["220,52", "378,148", "#a78bfa", 3.4],
-  ["220,52", "220,200", "#f5c451", 2.1],
-  ["62,148", "62,280", "#38d5ff", 2.5],
-  ["62,148", "220,200", "#38d5ff", 1.9],
-  ["378,148", "378,280", "#38d5ff", 2.7],
-  ["378,148", "220,200", "#38d5ff", 3.0],
-  ["62,280", "220,352", "#6ee7b7", 2.2],
-  ["378,280", "220,352", "#6ee7b7", 1.7],
-  ["220,200", "220,352", "#f5c451", 1.3],
-];
+const ROUTES = [
+  { id: "r1", path: "M183,150 Q227,82 271,118",   color: "#38d5ff", dur: 3.2 },
+  { id: "r2", path: "M271,118 Q334,88 397,158",    color: "#6ee7b7", dur: 4.1 },
+  { id: "r3", path: "M397,158 Q400,195 385,228",   color: "#a78bfa", dur: 2.8 },
+  { id: "r4", path: "M183,150 Q196,218 218,282",   color: "#38d5ff", dur: 3.7 },
+  { id: "r5", path: "M271,118 Q302,148 332,176",   color: "#f5c451", dur: 2.5 },
+  { id: "r6", path: "M272,238 Q312,210 332,176",   color: "#6ee7b7", dur: 3.0 },
+] as const;
 
-function MacroPulse() {
+const SIGNALS = [
+  { id: "s1", label: "GDP GROWTH", value: "+3.2%",  accent: "#38d5ff", x:  58, y: 122, dy: -6 },
+  { id: "s2", label: "AI SURGE",   value: "↑ +41%", accent: "#a78bfa", x: 444, y: 108, dy: -8 },
+  { id: "s3", label: "TRADE FLOW", value: "↓ –8%",  accent: "#f5c451", x: 444, y: 268, dy:  7 },
+  { id: "s4", label: "LABOR GAP",  value: "–2.1M",  accent: "#6ee7b7", x:  58, y: 268, dy:  5 },
+  { id: "s5", label: "INFLATION",  value: "↓ 3.1%", accent: "#fb7185", x: 178, y: 354, dy:  6 },
+  { id: "s6", label: "RATE PAUSE", value: "5.25%",  accent: "#f5c451", x: 318, y: 354, dy:  4 },
+] as const;
+
+function EconomicGlobe() {
   return (
-    <svg
-      viewBox="0 0 440 410"
-      className="w-full max-w-[500px]"
-      style={{ overflow: "visible" }}
-      aria-hidden
-    >
+    <svg viewBox="0 0 580 420" className="w-full max-w-[640px]" style={{ overflow: "visible" }} aria-hidden>
       <defs>
-        {["purple", "cyan", "amber", "mint", "rose"].map((n) => {
-          const c = { purple: "#a78bfa", cyan: "#38d5ff", amber: "#f5c451", mint: "#6ee7b7", rose: "#fb7185" }[n]!;
-          return (
-            <filter key={n} id={`glow-${n}`} x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="5" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-          );
-        })}
-        <radialGradient id="bg-pulse" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(56,213,255,0.06)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+        <clipPath id="eg-clip">
+          <circle cx="290" cy="210" r="170" />
+        </clipPath>
+        <radialGradient id="eg-body" cx="38%" cy="32%" r="65%">
+          <stop offset="0%"   stopColor="#0d2340" />
+          <stop offset="65%"  stopColor="#061428" />
+          <stop offset="100%" stopColor="#020810" />
         </radialGradient>
+        <radialGradient id="eg-atm" cx="50%" cy="50%" r="50%">
+          <stop offset="78%"  stopColor="transparent" stopOpacity="0" />
+          <stop offset="100%" stopColor="#38d5ff"     stopOpacity="0.15" />
+        </radialGradient>
+        <radialGradient id="eg-spec" cx="34%" cy="26%" r="45%">
+          <stop offset="0%"   stopColor="rgba(255,255,255,0.07)" />
+          <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+        </radialGradient>
+        <filter id="eg-halo" x="-25%" y="-25%" width="150%" height="150%">
+          <feGaussianBlur stdDeviation="10" />
+        </filter>
+        <filter id="eg-city" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <filter id="eg-particle" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
       </defs>
 
-      {/* Ambient background glow */}
-      <ellipse cx="220" cy="205" rx="200" ry="180" fill="url(#bg-pulse)" />
+      {/* Outer atmosphere halo */}
+      <circle cx="290" cy="210" r="185" fill="rgba(56,213,255,0.08)" filter="url(#eg-halo)" />
 
-      {/* Static edge lines */}
-      {EDGES.map(([from, to, color], i) => (
-        <line
-          key={i}
-          x1={from.split(",")[0]} y1={from.split(",")[1]}
-          x2={to.split(",")[0]} y2={to.split(",")[1]}
-          stroke={color} strokeWidth="0.8" opacity="0.18"
-        />
-      ))}
+      {/* Globe body */}
+      <circle cx="290" cy="210" r="170" fill="url(#eg-body)" />
 
-      {/* Animated particles along edges */}
-      {EDGES.map(([from, to, color, dur], i) => (
-        <circle key={`p${i}`} r="2.5" fill={color} opacity="0.65">
-          <animateMotion dur={`${dur}s`} repeatCount="indefinite" path={`M${from} L${to}`} />
-        </circle>
-      ))}
-      {/* Second particle offset for denser feel */}
-      {EDGES.map(([from, to, color, dur], i) => (
-        <circle key={`p2${i}`} r="1.5" fill={color} opacity="0.35">
-          <animateMotion dur={`${dur * 1.6}s`} begin={`${dur * 0.5}s`} repeatCount="indefinite" path={`M${from} L${to}`} />
-        </circle>
-      ))}
+      {/* Globe grid — clipped */}
+      <g clipPath="url(#eg-clip)" fill="none" stroke="rgba(56,213,255,0.55)" strokeWidth="0.55" opacity="0.22">
+        {/* Latitude lines */}
+        <ellipse cx="290" cy="90"  rx="120" ry="36" />
+        <ellipse cx="290" cy="150" rx="159" ry="48" />
+        <ellipse cx="290" cy="210" rx="170" ry="51" />
+        <ellipse cx="290" cy="270" rx="159" ry="48" />
+        <ellipse cx="290" cy="330" rx="120" ry="36" />
+        {/* Longitude curves */}
+        <path d="M290,40 Q133,210 290,380" />
+        <path d="M290,40 Q195,210 290,380" />
+        <line x1="290" y1="40" x2="290" y2="380" />
+        <path d="M290,40 Q385,210 290,380" />
+        <path d="M290,40 Q447,210 290,380" />
+      </g>
 
-      {/* Node halos (pulsing rings) */}
-      {NODES.map((n) => {
-        const glowId = { "#a78bfa": "purple", "#38d5ff": "cyan", "#f5c451": "amber", "#6ee7b7": "mint", "#fb7185": "rose" }[n.color] ?? "cyan";
-        return (
-          <circle key={`h${n.id}`} cx={n.x} cy={n.y} r={n.r + 6} fill="none" stroke={n.color} strokeWidth="1" opacity="0.2" filter={`url(#glow-${glowId})`}>
-            <animate attributeName="r" values={`${n.r + 4};${n.r + 16};${n.r + 4}`} dur={`${n.dur}s`} repeatCount="indefinite" calcMode="ease" />
-            <animate attributeName="opacity" values="0.12;0.28;0.12" dur={`${n.dur}s`} repeatCount="indefinite" calcMode="ease" />
+      {/* Trade routes — clipped */}
+      <g clipPath="url(#eg-clip)" fill="none">
+        {ROUTES.map((r) => (
+          <path key={r.id} d={r.path} stroke={r.color} strokeWidth="0.9" opacity="0.2" />
+        ))}
+      </g>
+
+      {/* Route particles */}
+      {ROUTES.map((r) => (
+        <g key={`rp-${r.id}`} filter="url(#eg-particle)">
+          <circle r="2.2" fill={r.color} opacity="0.9">
+            <animateMotion dur={`${r.dur}s`} repeatCount="indefinite" path={r.path} />
           </circle>
-        );
-      })}
+          <circle r="1.2" fill={r.color} opacity="0.45">
+            <animateMotion dur={`${r.dur * 1.6}s`} begin={`${r.dur * 0.5}s`} repeatCount="indefinite" path={r.path} />
+          </circle>
+        </g>
+      ))}
 
-      {/* Node bodies */}
-      {NODES.map((n) => {
-        const glowId = { "#a78bfa": "purple", "#38d5ff": "cyan", "#f5c451": "amber", "#6ee7b7": "mint", "#fb7185": "rose" }[n.color] ?? "cyan";
-        return (
-          <g key={`n${n.id}`}>
-            <circle cx={n.x} cy={n.y} r={n.r} fill={`${n.color}18`} stroke={n.color} strokeWidth="1.4" filter={`url(#glow-${glowId})`} />
-            <text x={n.x} y={n.y + 5} textAnchor="middle" fontSize="13" fill={n.color} style={{ fontFamily: "monospace", userSelect: "none" }}>
-              {n.glyph}
-            </text>
-            <text x={n.x} y={n.y + n.r + 14} textAnchor="middle" fontSize="8.5" fill="rgba(255,255,255,0.5)" style={{ fontFamily: "monospace", letterSpacing: "0.12em", textTransform: "uppercase", userSelect: "none" }}>
-              {n.label}
-            </text>
-          </g>
-        );
-      })}
+      {/* Atmosphere + specular overlay */}
+      <circle cx="290" cy="210" r="170" fill="url(#eg-atm)" />
+      <circle cx="290" cy="210" r="170" fill="url(#eg-spec)" />
+
+      {/* Globe border ring */}
+      <circle cx="290" cy="210" r="170" fill="none" stroke="rgba(56,213,255,0.2)" strokeWidth="1" />
+
+      {/* Scan ring */}
+      <ellipse cx="290" cy="210" rx="0" ry="0" fill="none" stroke="rgba(56,213,255,0.55)" strokeWidth="0.8">
+        <animate attributeName="rx"      from="0"   to="170" dur="3.2s" repeatCount="indefinite" />
+        <animate attributeName="ry"      from="0"   to="51"  dur="3.2s" repeatCount="indefinite" />
+        <animate attributeName="opacity" from="0.6" to="0"   dur="3.2s" repeatCount="indefinite" />
+      </ellipse>
+
+      {/* City nodes */}
+      {CITIES.map((city) => (
+        <g key={city.id} filter="url(#eg-city)">
+          <circle cx={city.x} cy={city.y} r="5" fill="none" stroke={city.color} strokeWidth="0.7" opacity="0.12">
+            <animate attributeName="r"       values="5;15;5"           dur={`${city.dur}s`} repeatCount="indefinite" calcMode="ease" />
+            <animate attributeName="opacity" values="0.08;0.22;0.08"   dur={`${city.dur}s`} repeatCount="indefinite" calcMode="ease" />
+          </circle>
+          <circle cx={city.x} cy={city.y} r="2.8" fill={city.color} opacity="0.95" />
+          <circle cx={city.x} cy={city.y} r="1.1" fill="white"      opacity="0.85" />
+        </g>
+      ))}
+
+      {/* Orbiting data ribbon */}
+      <path id="eg-ribbon" d="M105,210 A185,58 0 0,1 475,210 A185,58 0 0,1 105,210" fill="none" />
+      <text fontSize="6.5" fill="rgba(56,213,255,0.2)" fontFamily="monospace" letterSpacing="2.5">
+        <textPath href="#eg-ribbon">
+          GDP · TRADE · INFLATION · CREDIT · LABOR · INTEREST RATES · FISCAL POLICY · MONETARY SUPPLY · GDP · TRADE · INFLATION ·
+          <animate attributeName="startOffset" from="0%" to="100%" dur="22s" repeatCount="indefinite" />
+        </textPath>
+      </text>
+
+      {/* Floating signal cards */}
+      {SIGNALS.map((sig, i) => (
+        <motion.g
+          key={sig.id}
+          initial={{ y: 0 }}
+          animate={{ y: [0, sig.dy, 0] }}
+          transition={{ duration: 3.2 + i * 0.38, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <rect x={sig.x} y={sig.y} width="80" height="34" rx="5"
+            fill="rgba(5,7,13,0.88)" stroke={sig.accent} strokeWidth="0.6" strokeOpacity="0.45" />
+          <text x={sig.x + 7} y={sig.y + 12} fontSize="6.5" fill={sig.accent} opacity="0.62"
+            fontFamily="monospace" letterSpacing="0.8">
+            {sig.label}
+          </text>
+          <text x={sig.x + 7} y={sig.y + 25} fontSize="10.5" fill="white" opacity="0.9"
+            fontFamily="monospace" fontWeight="bold">
+            {sig.value}
+          </text>
+          <circle cx={sig.x + 72} cy={sig.y + 8} r="2" fill={sig.accent} opacity="0.65">
+            <animate attributeName="opacity" values="0.25;1;0.25" dur="1.9s" repeatCount="indefinite" />
+          </circle>
+        </motion.g>
+      ))}
     </svg>
   );
 }
@@ -376,30 +438,14 @@ function HeroSection({ onEnter, onHistory, onEconomics }: { onEnter: () => void;
           </div>
         </motion.div>
 
-        {/* Right: MacroPulse visual */}
+        {/* Right: Economic Globe */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
+          initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1.3, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
           className="relative flex items-center justify-center"
         >
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-cyan/[0.06] via-transparent to-purple-500/[0.04]" />
-          <div className="relative w-full rounded-3xl border border-white/[0.06] bg-slate-950/50 px-6 py-8 backdrop-blur-sm">
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-600">Economic Systems Network</p>
-                <p className="mt-0.5 text-sm font-semibold text-white">Forces that shape every economy</p>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-full border border-cyan/15 bg-cyan/[0.06] px-2.5 py-1">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan" />
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-cyan">live</span>
-              </div>
-            </div>
-            <MacroPulse />
-            <p className="mt-3 text-center font-mono text-[9px] uppercase tracking-[0.2em] text-slate-700">
-              Interconnected systems · Each force shapes the others
-            </p>
-          </div>
+          <EconomicGlobe />
         </motion.div>
       </div>
 
